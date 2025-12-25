@@ -1,10 +1,10 @@
 import streamlit as st
 import requests
 import re
-from openai import OpenAI
+import google.generativeai as genai
 
 # 🔑 Load secrets from Streamlit Cloud
-client = OpenAI(api_key=st.secrets["OPENAI_KEY"])
+genai.configure(api_key=st.secrets["GEMINI_KEY"])
 VT_KEY = st.secrets["VT_KEY"]
 ABUSE_KEY = st.secrets["ABUSE_KEY"]
 
@@ -97,18 +97,16 @@ if st.button("🔍 Analyze Email") and email.strip():
     for r in reasons:
         st.warning(r)
 
-    # 🤖 AI Analysis
-    st.subheader("🤖 AI Analysis")
+    # 🤖 Gemini AI Analysis
+    st.subheader("🤖 AI Analysis (Google Gemini)")
     try:
-        ai = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "user", "content": f"Is this a phishing email? Explain clearly:\n{email}"}
-            ]
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(
+            f"Is this a phishing email? Explain clearly:\n{email}"
         )
-        st.write(ai.choices[0].message.content)
+        st.write(response.text)
     except Exception as e:
-        st.error(f"AI analysis unavailable: {e}")
+        st.error(f"Gemini AI analysis unavailable: {e}")
 
     # 🌐 URL Threat Intel
     if urls:
