@@ -1,9 +1,9 @@
 import streamlit as st
 import requests, re
-import openai
+from openai import OpenAI
 
 # Load keys from Streamlit Secrets
-openai.api_key = st.secrets["OPENAI_KEY"]
+client = OpenAI(api_key=st.secrets["OPENAI_KEY"])
 VT = st.secrets["VT_KEY"]
 ABUSE = st.secrets["ABUSE_KEY"]
 
@@ -32,7 +32,7 @@ if st.button("Analyze"):
     urls, ips = extract_iocs(email)
 
     st.subheader("🤖 AI Analysis")
-    ai = openai.ChatCompletion.create(
+    ai = client.chat.completions.create(
         model="gpt-4",
         messages=[{"role": "user", "content": f"Is this a phishing email? Explain:\n{email}"}]
     )
